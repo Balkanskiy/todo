@@ -15,9 +15,7 @@ class App extends Component {
   handleInput = e => {
     const itemText = e.target.value;
     const currentItem = { text: itemText, key: Date.now() };
-    this.setState({
-      currentItem
-    });
+    this.setState({ currentItem });
   };
 
   addItem = e => {
