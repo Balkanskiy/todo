@@ -11,10 +11,6 @@ function App() {
     key: ""
   });
 
-  useEffect(() => {
-    fetchItems();
-  }, []);
-
   const fetchItems = async () => {
     try {
       const { data } = await http.get("/items");
@@ -23,6 +19,16 @@ function App() {
       console.error(error);
     }
   };
+
+  const cleanup = console.log("clean");
+
+  useEffect(
+    () => {
+      fetchItems();
+      return cleanup();
+    },
+    [currentItem]
+  );
 
   const handleInput = e => {
     const itemText = e.target.value;
