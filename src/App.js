@@ -4,6 +4,16 @@ import "./App.css";
 import TodoList from "./TodoList";
 import TodoItems from "./TodoItems";
 
+async function useFetchItems() {
+  try {
+    const { data } = await http.get("/items");
+    return data.items;
+  } catch (error) {
+    console.error(error);
+  }
+  return [];
+}
+
 function App() {
   const [items, setItems] = useState([]);
   const [currentItem, setCurrentItem] = useState({
@@ -20,15 +30,9 @@ function App() {
     }
   };
 
-  const cleanup = console.log("clean");
-
-  useEffect(
-    () => {
-      fetchItems();
-      return cleanup();
-    },
-    [currentItem]
-  );
+  useEffect(() => {
+    setItems(useFetchItems);
+  }, []);
 
   const handleInput = e => {
     const itemText = e.target.value;
