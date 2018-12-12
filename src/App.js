@@ -21,15 +21,6 @@ function App() {
     key: ""
   });
 
-  const fetchItems = async () => {
-    try {
-      const { data } = await http.get("/items");
-      setItems(data);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
   useEffect(() => {
     setItems(useFetchItems);
   }, []);
