@@ -12,9 +12,7 @@ class TodoList extends Component {
               value={this.props.currentItem.text}
               onChange={this.props.handleInput}
             />
-            <button type="submit" disabled={true}>
-              Add Task
-            </button>
+            <button type="submit">Add Task</button>
           </form>
         </div>
       </div>
