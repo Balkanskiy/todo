@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import http from "axios";
 import "./App.css";
 import TodoList from "./TodoList";
 import TodoItems from "./TodoItems";
@@ -12,6 +13,19 @@ class App extends Component {
     }
   };
 
+  componentDidMount() {
+    this.fetchItems();
+  }
+
+  fetchItems = async () => {
+    try {
+      const { data } = await http.get("/items");
+      this.setState({ items: data });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   handleInput = e => {
     const itemText = e.target.value;
     const currentItem = { text: itemText, key: Date.now() };
@@ -21,8 +35,8 @@ class App extends Component {
   addItem = e => {
     e.preventDefault();
     const newItem = this.state.currentItem;
+
     if (newItem.text !== "") {
-      console.log(newItem);
       const items = [...this.state.items, newItem];
       this.setState({
         items: items,
