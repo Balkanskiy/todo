@@ -1,41 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
-import http from "axios";
+import { useItems } from "./customHooks";
 import "./App.css";
 import TodoList from "./TodoList";
 import TodoItems from "./TodoItems";
-
-function useItems() {
-  const [items, setItems] = useState([]);
-  const fetchItems = async () => {
-    try {
-      const { data } = await http.get("/items");
-      setItems(data.items);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-  const addItem = (e, currentItem) => {
-    e.preventDefault();
-    if (currentItem.text !== "") {
-      const updatedItems = [...items, currentItem];
-      setItems(updatedItems);
-    }
-  };
-  const deleteItem = selectedItemKey => {
-    const filteredItems = items.filter(item => item.key !== selectedItemKey);
-    setItems(filteredItems);
-  };
-
-  return [items, { fetchItems, addItem, deleteItem }];
-}
 
 function App() {
   const [items, { fetchItems, addItem, deleteItem }] = useItems([]);
   const [currentItem, setCurrentItem] = useState({ text: "", key: "" });
 
-  useEffect(() => {
-    fetchItems();
-  }, []);
+  useEffect(fetchItems, []);
 
   const addNewItem = e => {
     addItem(e, currentItem);
