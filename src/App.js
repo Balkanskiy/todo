@@ -4,26 +4,43 @@ import "./App.css";
 import TodoList from "./TodoList";
 import TodoItems from "./TodoItems";
 
-async function useFetchItems() {
-  try {
-    const { data } = await http.get("/items");
-    return data.items;
-  } catch (error) {
-    console.error(error);
-  }
-  return [];
+function useItems() {
+  const [items, setItems] = useState([]);
+  const fetchItems = async () => {
+    try {
+      const { data } = await http.get("/items");
+      setItems(data.items);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  const addItem = (e, currentItem) => {
+    e.preventDefault();
+    if (currentItem.text !== "") {
+      const updatedItems = [...items, currentItem];
+      setItems(updatedItems);
+    }
+  };
+  const deleteItem = selectedItemKey => {
+    const filteredItems = items.filter(item => item.key !== selectedItemKey);
+    setItems(filteredItems);
+  };
+
+  return [items, { fetchItems, addItem, deleteItem }];
 }
 
 function App() {
-  const [items, setItems] = useState([]);
-  const [currentItem, setCurrentItem] = useState({
-    text: "",
-    key: ""
-  });
+  const [items, { fetchItems, addItem, deleteItem }] = useItems([]);
+  const [currentItem, setCurrentItem] = useState({ text: "", key: "" });
 
   useEffect(() => {
-    setItems(useFetchItems);
+    fetchItems();
   }, []);
+
+  const addNewItem = e => {
+    addItem(e, currentItem);
+    setCurrentItem({ text: "", key: "" });
+  };
 
   const handleInput = e => {
     const itemText = e.target.value;
@@ -31,27 +48,12 @@ function App() {
     setCurrentItem(currentItem);
   };
 
-  const deleteItem = key => {
-    const filteredItems = items.filter(item => item.key !== key);
-    setItems(filteredItems);
-  };
-
-  const addItem = e => {
-    e.preventDefault();
-    const newItem = currentItem;
-    if (newItem.text !== "") {
-      const updatedItems = [...items, newItem];
-      setItems(updatedItems);
-      setCurrentItem({ text: "", key: "" });
-    }
-  };
-
   const inputElement = useRef(null);
 
   return (
     <div className="App">
       <TodoList
-        addItem={addItem}
+        addItem={addNewItem}
         inputElement={inputElement}
         handleInput={handleInput}
         currentItem={currentItem}
