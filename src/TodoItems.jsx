@@ -2,9 +2,11 @@ import React, { Component } from "react";
 
 class TodoItems extends Component {
   createTasks = item => {
+    const taskDate = new Date(item.key);
+
     return (
       <li key={item.key} onClick={() => this.props.deleteItem(item.key)}>
-        {item.text}
+        {item.text} - {taskDate.toLocaleTimeString()}
       </li>
     );
   };

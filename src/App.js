@@ -1,73 +1,64 @@
-import React, { Component } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import http from "axios";
 import "./App.css";
 import TodoList from "./TodoList";
 import TodoItems from "./TodoItems";
 
-class App extends Component {
-  state = {
-    items: [],
-    currentItem: {
-      text: "",
-      key: ""
-    }
-  };
-
-  componentDidMount() {
-    this.fetchItems();
+async function useFetchItems() {
+  try {
+    const { data } = await http.get("/items");
+    return data.items;
+  } catch (error) {
+    console.error(error);
   }
+  return [];
+}
 
-  fetchItems = async () => {
-    try {
-      const { data } = await http.get("/items");
-      this.setState({ items: data });
-    } catch (error) {
-      console.error(error);
-    }
-  };
+function App() {
+  const [items, setItems] = useState([]);
+  const [currentItem, setCurrentItem] = useState({
+    text: "",
+    key: ""
+  });
 
-  handleInput = e => {
+  useEffect(() => {
+    setItems(useFetchItems);
+  }, []);
+
+  const handleInput = e => {
     const itemText = e.target.value;
     const currentItem = { text: itemText, key: Date.now() };
-    this.setState({ currentItem });
+    setCurrentItem(currentItem);
   };
 
-  addItem = e => {
-    e.preventDefault();
-    const newItem = this.state.currentItem;
+  const deleteItem = key => {
+    const filteredItems = items.filter(item => item.key !== key);
+    setItems(filteredItems);
+  };
 
+  const addItem = e => {
+    e.preventDefault();
+    const newItem = currentItem;
     if (newItem.text !== "") {
-      const items = [...this.state.items, newItem];
-      this.setState({
-        items: items,
-        currentItem: { text: "", key: "" }
-      });
+      const updatedItems = [...items, newItem];
+      setItems(updatedItems);
+      setCurrentItem({ text: "", key: "" });
     }
   };
 
-  deleteItem = key => {
-    const filteredItems = this.state.items.filter(item => {
-      return item.key !== key;
-    });
-    this.setState({
-      items: filteredItems
-    });
-  };
+  const inputElement = useRef(null);
 
-  inputElement = React.createRef();
-
-  render() {
-    return (
-      <div className="App">
-        <TodoList
-          addItem={this.addItem}
-          inputElement={this.inputElement}
-          handleInput={this.handleInput}
-          currentItem={this.state.currentItem}
-        />
-        <TodoItems entries={this.state.items} deleteItem={this.deleteItem} />
-      </div>
-    );
-  }
+  return (
+    <div className="App">
+      <TodoList
+        addItem={addItem}
+        inputElement={inputElement}
+        handleInput={handleInput}
+        currentItem={currentItem}
+      />
+      <TodoItems entries={items} deleteItem={deleteItem} />
+    </div>
+  );
 }
+
 export default App;
